@@ -47,3 +47,7 @@ export function sendVerifyCode(data) {
 export function resetPassword(data) {
   return request.post('/user/reset-password', data)
 }
+
+export function logoutUser(data) {
+  return request.post('/user/logout', data)
+}

@@ -29,6 +29,7 @@ request.interceptors.response.use(
         localStorage.removeItem('uid')
         localStorage.removeItem('username')
         localStorage.removeItem('role')
+        localStorage.removeItem('balance')
         window.location.hash = '#/login'
         ElMessage.error('登录已过期，请重新登录')
       } else if (status === 500) {

@@ -279,6 +279,31 @@ LogicSystem::LogicSystem() {
         }
     });
 
+    registerPost("/user/logout", [](std::shared_ptr<HttpConnection> connection) {
+        auto body = beast::buffers_to_string(connection->req_.body().data());
+        LOG_DEBUG("[Gate] USER_LOGOUT: {}", body);
+        connection->resp_.set(http::field::content_type, "application/json");
+        Json::Value jsonData, jsonResp;
+        Json::Reader reader;
+        if(!reader.parse(body, jsonData)) {
+            jsonResp["error"] = static_cast<int>(ErrorCodes::JSON_PARSE_ERROR);
+            beast::ostream(connection->resp_.body()) << jsonToStringPretty(jsonResp);
+            return;
+        }
+
+        int64_t uid = jsonData.get("uid", 0).asInt64();
+        if (uid > 0) {
+            std::string uid_str = std::to_string(uid);
+            RedisManager::getInstance().del(USER_TOKEN_PREFIX + uid_str);
+            RedisManager::getInstance().del(USER_ROLE_PREFIX + uid_str);
+            LOG_INFO("[Gate] User logout, cleared Redis token for uid={}", uid);
+        }
+
+        jsonResp["error"] = 0;
+        jsonResp["msg"] = "已登出";
+        beast::ostream(connection->resp_.body()) << jsonToStringPretty(jsonResp);
+    });
+
     // ============ 受保护路由（需要认证） ============
 
     registerGet("/user/profile", [](std::shared_ptr<HttpConnection> connection) {

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { loginUser, registerUser } from '@/api/user'
+import { loginUser, registerUser, logoutUser } from '@/api/user'
 
 const ROLE_LABELS = { 0: '客户', 1: '员工', 2: '管理员' }
 const ROLE_KEYS = { 0: 'customer', 1: 'staff', 2: 'admin' }
@@ -86,7 +86,13 @@ export const useAuthStore = defineStore('auth', () => {
     persist('balance', val)
   }
 
-  function logout() {
+  async function logout() {
+    // 通知服务端清除 Redis token
+    try {
+      await logoutUser({ uid: uid.value })
+    } catch {
+      // 忽略错误，继续清除本地数据
+    }
     clearAuth()
     window.location.hash = '#/login'
   }

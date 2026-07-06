@@ -31,6 +31,7 @@ private:
     inline static const std::unordered_set<std::string> PUBLIC_PATHS = {
         "/user/register",
         "/user/login",
+        "/user/logout",
         "/send-verify-code",
         "/user/reset-password"
     };

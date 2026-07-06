@@ -54,6 +54,15 @@
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="车辆描述" />
         </el-form-item>
 
+        <el-form-item v-if="isEdit" label="状态" prop="status">
+          <el-select v-model="form.status" style="width: 100%">
+            <el-option label="可用" value="available" />
+            <el-option label="已租出" value="rented" />
+            <el-option label="维修中" value="maintenance" />
+            <el-option label="已退役" value="retired" />
+          </el-select>
+        </el-form-item>
+
         <el-form-item>
           <el-button type="primary" :loading="submitting" @click="handleSubmit">
             {{ isEdit ? '保存修改' : '添加车辆' }}
@@ -90,6 +99,7 @@ const form = reactive({
   deposit_amount: 0,
   image_url: '',
   description: '',
+  status: 'available',
 })
 
 const rules = {
@@ -119,6 +129,7 @@ async function loadVehicle() {
         deposit_amount: v.deposit_amount || 0,
         image_url: v.image_url || '',
         description: v.description || '',
+        status: v.status || 'available',
       })
     }
   } catch {
@@ -141,10 +152,10 @@ async function handleSubmit() {
       ElMessage.success(isEdit.value ? '车辆已更新' : '车辆已添加')
       router.push('/vehicles')
     } else {
-      ElMessage.error('操作失败')
+      ElMessage.error(res.msg || '操作失败')
     }
-  } catch {
-    ElMessage.error('操作失败')
+  } catch (err) {
+    ElMessage.error(err.message || '操作失败')
   } finally {
     submitting.value = false
   }
